@@ -17,7 +17,7 @@
             "dependsOn": [
                 "cpp:build"
             ],
-            "command": "./bin/vitae",
+            "command": "./bin/goeta",
             "presentation": {
                 "echo": true,
                 "reveal": "always",
