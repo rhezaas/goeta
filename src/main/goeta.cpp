@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
         #pragma endregion
 
         #pragma region compareResult
-            Node endData        = guessAxon.getEndNode();
+            Node endData        = guessAxon.getOutputNode();
 
             float successResult = 0;
             for (int row = 0; row < endData.rows(); row++) {

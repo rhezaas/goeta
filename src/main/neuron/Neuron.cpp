@@ -19,9 +19,9 @@ void Neuron::attach(Axon &learningAxon) {
     this->learningAxon = &learningAxon;
 }
 
-void Neuron::feedForward(Node primalNode, std::vector<Cell> &isolatedCell) {
-    Node node                               = (primalNode * isolatedCell.at(0).weight) 
-                                                + isolatedCell.at(0).bias.replicate(primalNode.rows(), 1);
+void Neuron::feedForward(Node inputNode, std::vector<Cell> &isolatedCell) {
+    Node node                               = (inputNode * isolatedCell.at(0).weight) 
+                                                + isolatedCell.at(0).bias.replicate(inputNode.rows(), 1);
     isolatedCell.at(0).node                 = node.array().unaryExpr(&sigmoid);
 
     for (int cellIndex = 1; cellIndex < isolatedCell.size(); cellIndex++) {
@@ -33,7 +33,7 @@ void Neuron::feedForward(Node primalNode, std::vector<Cell> &isolatedCell) {
 
 void Neuron::backProp(std::vector<Cell> &isolatedCell) {
     int cellIndex                       = isolatedCell.size() - 1;
-    Link errorSlope                     = this->learningAxon->getEndNode() - isolatedCell.at(cellIndex).node;
+    Link errorSlope                     = this->learningAxon->getOutputNode() - isolatedCell.at(cellIndex).node;
     Link delta                          = isolatedCell.at(cellIndex).node.array().unaryExpr(&sigmoidPrime);
     isolatedCell.at(cellIndex).delta    = errorSlope.cwiseProduct(delta);
 
@@ -49,7 +49,7 @@ void Neuron::backProp(std::vector<Cell> &isolatedCell) {
 }
 
 void Neuron::linkAdjustment(std::vector<Cell> &isolatedCell) {
-    Link weight                 = (this->learningAxon->getPrimalNode().transpose() * isolatedCell.at(0).delta) * this->learningRate;
+    Link weight                 = (this->learningAxon->getInputNode().transpose() * isolatedCell.at(0).delta) * this->learningRate;
     isolatedCell.at(0).weight   = isolatedCell.at(0).weight + weight;
 
     Link bias                   = isolatedCell.at(0).delta.colwise().sum() * this->learningRate;
@@ -81,7 +81,7 @@ void Neuron::learn() {
     }
 
     for (int i = 0; i < this->epoch; i++) {
-        this->feedForward(this->learningAxon->getPrimalNode(), isolatedCell);
+        this->feedForward(this->learningAxon->getInputNode(), isolatedCell);
         this->backProp(isolatedCell);
 
         this->linkAdjustment(isolatedCell);
@@ -97,7 +97,7 @@ Node Neuron::guess(Axon guessAxon) {
         throw std::runtime_error("empty learning axon, please attach learnt axon");
     }
 
-    this->feedForward(guessAxon.getPrimalNode(), isolatedCell);
+    this->feedForward(guessAxon.getInputNode(), isolatedCell);
     return isolatedCell.at(isolatedCell.size() - 1).node;
 }
 

@@ -10,11 +10,11 @@
 
 class Axon {
     private:
-        Node primalNode;
-        int primalNodeLength;
+        Node inputNode;
+        int inputNodeLength;
 
-        Node endNode;
-        int endNodeLength;
+        Node outputNode;
+        int outputNodeLength;
 
         std::vector<Cell> isolatedCells;
         Cell lastCell;
@@ -23,13 +23,13 @@ class Axon {
 
     public:
         Axon();
-        Axon(int primalNodeLength, int endNodeLength);
+        Axon(int inputNodeLength, int outputNodeLength);
 
         void seedData(std::string filename);
         void addCell(int nodes);
 
-        Node getPrimalNode();
-        Node getEndNode();
+        Node getInputNode();
+        Node getOutputNode();
         std::vector<Cell> getIsolatedCells();
         Cell getLastCell();
 

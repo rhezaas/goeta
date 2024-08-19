@@ -14,7 +14,7 @@ class Neuron {
         float   learningRate    = 0.0f;
         Axon    *learningAxon;
 
-        void    feedForward(Node primalNode, std::vector<Cell> &isolatedCell);
+        void    feedForward(Node inputNode, std::vector<Cell> &isolatedCell);
         void    backProp(std::vector<Cell> &isolatedCell);
         void    linkAdjustment(std::vector<Cell> &isolatedCell);
 

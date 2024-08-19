@@ -10,16 +10,16 @@
 
 
 Axon::Axon() {};
-Axon::Axon(int primalNodeLength, int endNodeLength) {
-    this->primalNodeLength  = primalNodeLength;
-    this->endNodeLength     = endNodeLength;
+Axon::Axon(int inputNodeLength, int outputNodeLength) {
+    this->inputNodeLength  = inputNodeLength;
+    this->outputNodeLength     = outputNodeLength;
 }
 
 void Axon::seedData(std::string filename) {
     CSVReader reader(filename);
 
-    Node primalNode;
-    Node endNode;
+    Node inputNode;
+    Node outputNode;
 
     int rowIndex = 0;
     for (CSVRow& row: reader) {
@@ -27,16 +27,16 @@ void Axon::seedData(std::string filename) {
 
         for (CSVColumn& column: row) {
             if (!columnIndex) {
-                primalNode.conservativeResize(rowIndex + 1, this->primalNodeLength);
-                endNode.conservativeResize(rowIndex + 1, this->endNodeLength);
+                inputNode.conservativeResize(rowIndex + 1, this->inputNodeLength);
+                outputNode.conservativeResize(rowIndex + 1, this->outputNodeLength);
             }
 
-            if (columnIndex < this->primalNodeLength) {
-                primalNode(rowIndex, columnIndex) = column.get<float>();
+            if (columnIndex < this->inputNodeLength) {
+                inputNode(rowIndex, columnIndex) = column.get<float>();
             }
 
-            if (this->primalNodeLength <= columnIndex && columnIndex < row.size()) {
-                endNode(rowIndex, (columnIndex - (this->endNodeLength + 1))) = column.get<float>();
+            if (this->inputNodeLength <= columnIndex && columnIndex < row.size()) {
+                outputNode(rowIndex, (columnIndex - (this->outputNodeLength + 1))) = column.get<float>();
             }
 
             columnIndex++;
@@ -45,16 +45,16 @@ void Axon::seedData(std::string filename) {
         rowIndex++;
     }
 
-    this->primalNode    = primalNode;
-    this->endNode       = endNode;
+    this->inputNode    = inputNode;
+    this->outputNode       = outputNode;
 }
 
 void Axon::addCell(int nodes) {
-    if (!this->primalNode.size()) {
+    if (!this->inputNode.size()) {
         throw std::runtime_error("empty primal node, please seed data first");
     }
 
-    if (!this->endNode.size()) {
+    if (!this->outputNode.size()) {
         throw std::runtime_error("empty end node, please seed data first");
     }
 
@@ -67,7 +67,7 @@ void Axon::addCell(int nodes) {
     if (this->isolatedCells.size() > 0) {
         weight = Link(this->isolatedCells.at(lastCellIndex).weight.cols(), nodes);
     } else {
-        weight = Link(this->primalNodeLength, nodes);
+        weight = Link(this->inputNodeLength, nodes);
     }
 
     weight.setRandom();
@@ -86,8 +86,8 @@ void Axon::addCell(int nodes) {
 void Axon::adjustLastCell() {
     int lastCellIndex = this->isolatedCells.size() - 1;
 
-    Link weight(this->isolatedCells.at(lastCellIndex).weight.cols(), this->endNodeLength);
-    Link bias(1, this->endNodeLength);
+    Link weight(this->isolatedCells.at(lastCellIndex).weight.cols(), this->outputNodeLength);
+    Link bias(1, this->outputNodeLength);
 
     weight.setRandom();
     bias.setConstant(1);
@@ -100,12 +100,12 @@ void Axon::adjustLastCell() {
     };
 }
 
-Node Axon::getPrimalNode() {
-    return this->primalNode;
+Node Axon::getInputNode() {
+    return this->inputNode;
 }
 
-Node Axon::getEndNode() {
-    return this->endNode;
+Node Axon::getOutputNode() {
+    return this->outputNode;
 }
 
 std::vector<Cell> Axon::getIsolatedCells() {
